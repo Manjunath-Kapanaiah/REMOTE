@@ -1,3 +1,7 @@
 This is a trigger file - is any chnages in the file it will trigger the job automatically when comitted.... changes made
 
 Thank you..
+
+
+
+this change will triigger the poll scm after commit..
