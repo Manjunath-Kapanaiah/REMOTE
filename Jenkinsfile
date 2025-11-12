@@ -1,4 +1,13 @@
-post {
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building...'
+            }
+        }
+    }
+    post {
     always {
         script {
             def status = currentBuild.currentResult
@@ -11,3 +20,4 @@ post {
         }
     }
 }
+
