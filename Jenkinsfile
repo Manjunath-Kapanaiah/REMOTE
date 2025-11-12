@@ -7,12 +7,16 @@ pipeline {
             }
         }
     }
-    post {
-        success {
-            slackSend(channel: '#manju-jenkins-demo', color: 'good', message: "✅ Build succeeded: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
-        }
-        failure {
-            slackSend(channel: '#manju-jenkins-demo', color: 'danger', message: "❌ Build failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+ post {
+    always {
+        script {
+            def status = currentBuild.currentResult
+            def color = status == 'SUCCESS' ? 'good' : (status == 'FAILURE' ? 'danger' : 'warning')
+            slackSend (
+                channel: '#manju-jenkins-demo',
+                color: color,
+                message: "📢 *Build Notification:*\n*Project:* ${env.JOB_NAME}\n*Build:* #${env.BUILD_NUMBER}\n*Status:* ${status}\n*Triggered by:* ${env.BUILD_USER}\n<${env.BUILD_URL}|View Build Logs>"
+            )
         }
     }
 }
