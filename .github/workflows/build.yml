@@ -24,6 +24,6 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=Manjunath-Kapanaiah_REMOTE
-            -Dsonar.organization=Manjunath-Kapanaiah
+            -Dsonar.organization=manjunath-kapanaiah
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=.
