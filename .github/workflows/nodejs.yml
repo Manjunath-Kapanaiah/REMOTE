@@ -1,4 +1,4 @@
-name: Build and Install Node.js App
+name: Node.js CI Pipeline
 
 on:
   push:
@@ -7,29 +7,36 @@ on:
   pull_request:
 
 jobs:
-  build-node:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
-      - name: Checkout Code
+      # Step 1: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Install Node.js
+      # Step 2: Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'        # Change to 16, 18, 20 based on project requirement
-          cache: 'npm'              # Cache dependencies (faster builds)
+          node-version: '18'
+          cache: 'npm'
 
-      # 3. Install dependencies
-      - name: Install Dependencies
+      # Step 3: Install dependencies
+      - name: Install dependencies
         run: npm install
 
-      # 4. Build application
-      - name: Build Application
-        run: npm run build          # Change this if your build command is different
+      # Step 4: Run build
+      - name: Build the application
+        run: npm run build
 
-      # 5. Run tests (optional)
+      # Step 5: Run tests (optional)
       - name: Run Tests
-        run: npm test || echo "No tests found"
+        run: npm test || echo "No tests available"
+
+      # Step 6: Upload build artifacts (optional)
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: build/
