@@ -1,12 +1,12 @@
 name: Build and SonarScan
 
 on:
+  workflow_dispatch:  # This enables the "Run workflow" button
   push:
     branches:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-
 jobs:
   sonarqube:
     runs-on: ubuntu-latest
