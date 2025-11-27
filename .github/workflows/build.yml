@@ -1,4 +1,4 @@
-name: Build_SONAR_MAIN
+name: Build and SonarScan
 
 on:
   push:
@@ -9,14 +9,29 @@ on:
 
 jobs:
   sonarqube:
-    name: SonarQube
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Build the project
+      - name: Build project
+        run: npm run build
+
+      # 5. Run SonarCloud analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
@@ -26,4 +41,4 @@ jobs:
             -Dsonar.projectKey=Manjunath-Kapanaiah_REMOTE
             -Dsonar.organization=manjunath-kapanaiah
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=.
+            -Dsonar.sources=src
