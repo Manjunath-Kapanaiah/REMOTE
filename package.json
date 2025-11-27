@@ -1,17 +1,18 @@
 {
-  "name": "my-node-app",
+  "name": "vite-react-app",
   "version": "1.0.0",
-  "description": "A sample Node.js application",
-  "main": "src/index.js",
+  "private": true,
   "scripts": {
-    "start": "node src/index.js",
-    "build": "echo \"No build step defined\"",
-    "test": "echo \"No tests yet\" && exit 0"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
-  "author": "Manjunath",
-  "license": "MIT",
   "dependencies": {
-    "express": "^4.19.2"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^4.5.0"
+  }
 }
