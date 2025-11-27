@@ -3,7 +3,7 @@ name: Install and Buil Java Applications
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   Buildjob:
     runs-on: ubuntu-latest
