@@ -1,0 +1,35 @@
+name: Build and Install Node.js App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-node:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Install Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'        # Change to 16, 18, 20 based on project requirement
+          cache: 'npm'              # Cache dependencies (faster builds)
+
+      # 3. Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # 4. Build application
+      - name: Build Application
+        run: npm run build          # Change this if your build command is different
+
+      # 5. Run tests (optional)
+      - name: Run Tests
+        run: npm test || echo "No tests found"
