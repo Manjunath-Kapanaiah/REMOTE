@@ -23,7 +23,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=expendable_manjunath
-            -Dsonar.organization=expendable
+            -Dsonar.projectKey=Manjunath-Kapanaiah_REMOTE
+            -Dsonar.organization=Manjunath H K
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=.
