@@ -1,5 +1,5 @@
 ---
-name: Install and Buil Java Applications
+name: Install and Build java application from master branch
 on:
   push:
     branches:
