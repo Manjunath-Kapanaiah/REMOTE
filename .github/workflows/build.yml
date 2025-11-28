@@ -34,6 +34,9 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: List project files
+        run: ls -R
+
       # 5. Run SonarCloud analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
@@ -44,5 +47,5 @@ jobs:
             -Dsonar.projectKey=Manjunath-Kapanaiah_REMOTE
             -Dsonar.organization=manjunath-kapanaiah
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.sources=src
-            -Dsonar.tests=tests \
+            -Dsonar.sources=.
+            -Dsonar.tests=tests
