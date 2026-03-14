@@ -1,0 +1,149 @@
+pipeline {
+
+    agent none
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev','qa','stage','prod'])
+    }
+
+    environment {
+        CACHE_DIR = "/var/lib/jenkins/cache"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            agent { label 'master' }
+
+            steps {
+                git branch: 'main', url: 'https://github.com/Manjunath-Kapanaiah/FORKED_REPO.git'
+            }
+        }
+
+        stage('Dependency Cache') {
+            agent { label 'master' }
+
+            steps {
+
+                script {
+
+                    if (fileExists("${CACHE_DIR}/deps.txt")) {
+
+                        echo "CACHE HIT"
+
+                        sh """
+                        cp ${CACHE_DIR}/deps.txt .
+                        """
+
+                    } else {
+
+                        echo "CACHE MISS"
+
+                        sh """
+                        mkdir -p ${CACHE_DIR}
+
+                        echo "libraryA" > deps.txt
+                        echo "libraryB" >> deps.txt
+
+                        cp deps.txt ${CACHE_DIR}/
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Build Service A') {
+
+            agent { label 'agent1' }
+
+            steps {
+
+                sh """
+                echo "Building Service A on AGENT"
+                mkdir buildA
+                echo "service A build" > buildA/app.txt
+                tar -czvf serviceA.tar.gz buildA
+                """
+            }
+        }
+
+        stage('Test Service A') {
+
+            agent { label 'agent1' }
+
+            steps {
+
+                retry(2) {
+
+                    sh """
+                    echo "Testing Service A"
+                    sleep 3
+                    """
+                }
+            }
+        }
+
+        stage('Build Service B') {
+
+            agent { label 'agent2' }
+
+            steps {
+
+                sh """
+                echo "Building Service B on AGENT2"
+                mkdir buildB
+                echo "service B build" > buildB/app.txt
+                tar -czvf serviceB.tar.gz buildB
+                """
+            }
+        }
+
+        stage('Test Service B') {
+
+            agent { label 'agent2' }
+
+            steps {
+
+                retry(2) {
+
+                    sh """
+                    echo "Testing Service B"
+                    sleep 3
+                    """
+                }
+            }
+        }
+
+        stage('Deploy Services') {
+
+            agent { label 'master' }
+
+            when {
+                expression {
+                    return params.ENVIRONMENT != "dev"
+                }
+            }
+
+            steps {
+
+                sh """
+                echo "Deploying Services on MASTER"
+
+                uname -a
+                hostname
+                date
+
+                echo "Deployment Complete"
+                """
+            }
+        }
+    }
+
+    post {
+
+        success {
+
+            archiveArtifacts artifacts: '*.tar.gz'
+        }
+    }
+}
