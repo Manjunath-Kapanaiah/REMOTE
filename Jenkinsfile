@@ -1,21 +1,34 @@
 pipeline {
     agent any
 
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '5')) // keep last 5 builds
-        timeout(time: 5, unit: 'MINUTES') // global timeout
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Git branch to build')
     }
 
     environment {
-        LOG_DIR = "logs"
-        ARCHIVE_DIR = "archive_logs"
+        REPO_URL = 'https://github.com/example/repo.git' // replace with your repo
+        LOG_DIR = 'logs'
+        ARCHIVE_DIR = 'archive_logs'
+    }
+
+    options {
+        timeout(time: 5, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        timestamps()
     }
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                echo "Cloning branch: ${params.BRANCH_NAME}"
+                git branch: "${params.BRANCH_NAME}", url: "${REPO_URL}"
+            }
+        }
+
         stage('Setup') {
             steps {
-                echo "Setting up directories..."
+                echo "Preparing environment..."
                 sh '''
                     mkdir -p $LOG_DIR
                     mkdir -p $ARCHIVE_DIR
@@ -25,19 +38,23 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo "Build started..."
-                sh 'echo "Build successful" > logs/build.log'
+                echo "Starting build..."
+                retry(2) {
+                    sh '''
+                        echo "Build completed successfully" > $LOG_DIR/build.log
+                    '''
+                }
             }
         }
 
-        stage('Test (Simulate Failure)') {
+        stage('Test (Simulated Failure)') {
             steps {
                 script {
                     echo "Running tests..."
 
                     // Simulate failure
                     sh '''
-                        echo "Test failed due to error XYZ" > logs/test.log
+                        echo "Test failed due to error XYZ" > $LOG_DIR/test.log
                         exit 1
                     '''
                 }
@@ -45,8 +62,14 @@ pipeline {
         }
 
         stage('Deploy') {
+            when {
+                expression { currentBuild.currentResult == 'SUCCESS' }
+            }
             steps {
-                echo "This stage will be skipped if failure occurs"
+                echo "Deploying application..."
+                sh '''
+                    echo "Deployment successful" > $LOG_DIR/deploy.log
+                '''
             }
         }
     }
@@ -54,32 +77,42 @@ pipeline {
     post {
 
         success {
-            echo "Pipeline executed successfully!"
+            echo "Build SUCCESS ✅"
+
+            // Archive logs
+            archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
+
+            // Mock notification
+            echo "Notification: SUCCESS email sent to team"
         }
 
         failure {
-            echo "Build FAILED!"
+            echo "Build FAILED ❌"
 
-            // Mock email notification
-            echo "ALERT: Sending failure notification to team..."
+            // Mock notification
+            echo "ALERT: Sending FAILURE notification to team..."
 
-            // Archive failure logs
+            // Copy logs for failure analysis
             sh '''
-                cp -r $LOG_DIR/* $ARCHIVE_DIR/ || true
+                cp -r $LOG_DIR/* $ARCHSPACE 2>/dev/null || true
             '''
 
-            archiveArtifacts artifacts: 'archive_logs/**', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'logs/**', allowEmptyArchive: true
+        }
+
+        unstable {
+            echo "Build UNSTABLE ⚠️"
         }
 
         always {
             echo "Running cleanup..."
 
-            // Cleanup old artifacts (example: delete logs older than 1 day)
+            // Delete logs older than 1 day
             sh '''
                 find $WORKSPACE -type f -name "*.log" -mtime +1 -exec rm -f {} \\; || true
             '''
 
-            // Optional: clean workspace
+            // Clean workspace
             cleanWs()
         }
     }
